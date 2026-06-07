@@ -11,6 +11,7 @@ export default function SubmissionViewer({ assignment, courseId }: { assignment:
     const [filter, setFilter] = useState("ALL"); // ALL | SUBMITTED | LATE | PENDING
     const [search, setSearch] = useState("");
     const [uploadingCsv, setUploadingCsv] = useState(false);
+    const [downloadingZip, setDownloadingZip] = useState(false);
     const [dynamicAssignment, setDynamicAssignment] = useState(assignment);
 
     useEffect(() => {
@@ -117,6 +118,38 @@ export default function SubmissionViewer({ assignment, courseId }: { assignment:
         }
     };
 
+    const handleDownloadZip = async () => {
+        setDownloadingZip(true);
+        try {
+            const token = getAuthToken();
+            const res = await fetch(`http://localhost:5000/api/assignments/${assignment.id}/download-all`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            
+            if (!res.ok) {
+                const data = await res.json().catch(() => ({}));
+                alert(`Download failed: ${data.error || 'Server error'}`);
+                setDownloadingZip(false);
+                return;
+            }
+            
+            const blob = await res.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `assignment_${assignment.id}_submissions.zip`;
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            a.remove();
+        } catch (err) {
+            console.error(err);
+            alert("An error occurred during download.");
+        } finally {
+            setDownloadingZip(false);
+        }
+    };
+
     return (
         <div className="space-y-4">
             <div className="flex justify-between items-center bg-blue-50 dark:bg-slate-800 p-4 rounded-xl flex-wrap gap-4">
@@ -126,10 +159,12 @@ export default function SubmissionViewer({ assignment, courseId }: { assignment:
                 </div>
                 <div className="flex items-center gap-3">
                     <button 
-                        onClick={() => window.open(`http://localhost:5000/api/assignments/${assignment.id}/download-all`, '_blank')}
-                        className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-blue-700 transition"
+                        onClick={handleDownloadZip}
+                        disabled={downloadingZip}
+                        className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-blue-700 transition flex items-center justify-center min-w-[220px] disabled:opacity-50"
                     >
-                        Download All Submissions (ZIP)
+                        {downloadingZip ? <Loader2 className="w-5 h-5 animate-spin mr-2"/> : null}
+                        {downloadingZip ? "Preparing ZIP..." : "Download All Submissions (ZIP)"}
                     </button>
                     <label className="flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-white cursor-pointer px-4 py-2 rounded-lg text-sm font-semibold transition-all">
                         {uploadingCsv ? <Loader2 className="w-4 h-4 animate-spin" /> : <><Upload className="w-4 h-4" /> Upload Grades CSV</>}

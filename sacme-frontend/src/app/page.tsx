@@ -1,12 +1,15 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { ArrowRight, GraduationCap, ShieldCheck, Zap, BookOpen, Users, LayoutDashboard } from "lucide-react";
+import { ArrowRight, GraduationCap, ShieldCheck, Zap, BookOpen, Users, LayoutDashboard, X } from "lucide-react";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { Button } from "@/components/ui/Button";
 
 export default function LandingPage() {
+  const [showDevModal, setShowDevModal] = useState(false);
+
   return (
     <div className="min-h-screen bg-[#f9f9fb] dark:bg-slate-950 text-slate-900 dark:text-white font-sans selection:bg-blue-200 dark:selection:bg-blue-900 relative">
       
@@ -14,9 +17,11 @@ export default function LandingPage() {
       <header className="sticky top-0 z-50 w-full bg-white/90 dark:bg-slate-950/90 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 transition-colors">
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded bg-blue-600 flex items-center justify-center text-white font-bold text-lg">
-              S
-            </div>
+            <img 
+              src="/logo.png" 
+              alt="Logo" 
+              className="w-9 h-9 object-contain"
+            />
             <span className="font-bold text-xl tracking-tight">SACME</span>
           </div>
           <div className="flex items-center gap-4">
@@ -66,6 +71,13 @@ export default function LandingPage() {
                 Get started for free
               </Button>
             </Link>
+            <Button 
+              size="lg" 
+              className="w-full sm:w-auto rounded-full bg-white dark:bg-slate-800 text-slate-900 dark:text-white border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 font-semibold text-lg px-8 h-14"
+              onClick={() => setShowDevModal(true)}
+            >
+              Developer Details
+            </Button>
             <p className="text-sm font-medium text-slate-500 hidden sm:block">No credit card required.</p>
           </motion.div>
         </section>
@@ -175,9 +187,11 @@ export default function LandingPage() {
       <footer className="w-full bg-white dark:bg-slate-950 py-12">
         <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="flex items-center gap-2">
-            <div className="w-6 h-6 rounded bg-slate-900 dark:bg-white flex items-center justify-center text-white dark:text-slate-900 font-bold text-xs">
-              S
-            </div>
+            <img 
+              src="/logo.png" 
+              alt="Logo" 
+              className="w-7 h-7 object-contain grayscale opacity-70 hover:grayscale-0 hover:opacity-100 transition-all"
+            />
             <span className="font-bold text-slate-900 dark:text-white">SACME</span>
           </div>
           <div className="flex gap-8 text-sm font-medium text-slate-500 dark:text-slate-400">
@@ -186,6 +200,38 @@ export default function LandingPage() {
           </div>
         </div>
       </footer>
+
+      {showDevModal && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-md overflow-hidden relative"
+          >
+            <div className="p-4 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center bg-slate-50 dark:bg-slate-950">
+              <h3 className="font-bold text-lg text-slate-900 dark:text-white">Developer Information</h3>
+              <button 
+                onClick={() => setShowDevModal(false)}
+                className="p-1.5 rounded-full hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-500 transition-colors"
+                aria-label="Close"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="p-8 flex flex-col items-center text-center">
+              <img 
+                src="/logo.png" 
+                alt="Developer Logo" 
+                className="w-40 h-40 object-contain mb-6 drop-shadow-md"
+              />
+              <h2 className="text-3xl font-black mb-2 text-slate-900 dark:text-white">K Hari Prasad</h2>
+              <p className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-400">
+                IIT PATNA
+              </p>
+            </div>
+          </motion.div>
+        </div>
+      )}
     </div>
   );
 }

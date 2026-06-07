@@ -46,6 +46,7 @@ app.use('/api/materials', require('./routes/material'));
 app.use('/api/quiz', require('./routes/quiz'));
 app.use('/api/attendance', require('./routes/attendance'));
 app.use('/api/announcements', require('./routes/announcement'));
+app.use('/api/communication', require('./routes/communication'));
 // Global Error Handler (specifically for Multer upload limits/filters)
 app.use((err, req, res, next) => {
     if (err) {
@@ -71,6 +72,9 @@ const io = new Server(httpServer, {
 
 app.set('io', io); // Allow routes to emit events via req.app.get('io')
 
+const { PrismaClient } = require('@prisma/client');
+const prisma = new PrismaClient();
+
 io.on('connection', (socket) => {
     console.log(`[Socket] Connected: ${socket.id}`);
     
@@ -91,11 +95,6 @@ io.on('connection', (socket) => {
 
     socket.on('student_status', (payload) => {
         io.to(`quiz_${payload.quizId}`).emit('student_status', payload);
-    });
-
-    socket.on('join_course_room', (courseId) => {
-        socket.join(courseId);
-        console.log(`[Socket] ${socket.id} joined course_${courseId}`);
     });
 
     socket.on('disconnect', () => {

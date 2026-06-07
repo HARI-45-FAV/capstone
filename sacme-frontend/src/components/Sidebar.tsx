@@ -83,10 +83,12 @@ export default function Sidebar() {
                 {/* Logo Area */}
                 <div className="px-4 md:px-6 flex justify-center md:justify-start items-center mb-10">
                     <Link href="/" className="flex items-center gap-3 group">
-                        <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center text-white font-black text-xl shadow-sm transition-shadow">
-                            S
-                        </div>
-                        <span className="font-bold text-xl tracking-tight text-slate-900 dark:text-white hidden md:block">SACME</span>
+                        <img 
+                            src="/logo.png" 
+                            alt="SACME Logo" 
+                            className="w-12 h-12 object-contain aspect-square"
+                        />
+                        <span className="font-bold text-xl tracking-tight text-slate-900 dark:text-white hidden md:block select-none">SACME</span>
                     </Link>
                 </div>
 

@@ -4,7 +4,7 @@ import { getAuthToken, logoutUser } from '@/lib/auth';
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 import { motion, AnimatePresence } from "framer-motion";
-import { BookOpen, Users, FileText, CheckSquare, Megaphone, Folder, ArrowLeft, Loader2, ArrowRight, Clock } from "lucide-react";
+import { BookOpen, Users, FileText, CheckSquare, Megaphone, Folder, ArrowLeft, Loader2, ArrowRight, Clock, MessageCircle } from "lucide-react";
 import StudentAssignmentModule from "@/components/student/StudentAssignmentModule";
 import StudentMaterialModule from "@/components/student/StudentMaterialModule";
 import ActivityTimeline from "@/components/shared/ActivityTimeline";

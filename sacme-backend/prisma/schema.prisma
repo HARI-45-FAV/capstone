@@ -39,8 +39,10 @@ model User {
   facultyAdvisor FacultyAdvisor?
   professor      Professor?
   student        Student?
-  auditLogs      AuditLog[]
-  notifications  Notification[]
+  auditLogs        AuditLog[]
+  notifications    Notification[]
+  sentMessages     ChatMessage[] @relation("SentMessages")
+  receivedMessages ChatMessage[] @relation("ReceivedMessages")
 }
 
 // ----------------------------------------------------------------------
@@ -237,6 +239,7 @@ model Course {
   announcements Announcement[]
   grades        Grade[]
   enrollments   Enrollment[]
+  chatMessages  ChatMessage[]
 }
 
 model Enrollment {
@@ -496,11 +499,37 @@ model Notification {
 }
 
 model EmailLog {
-  id         String   @id @default(uuid())
-  studentId  String
-  courseId   String
-  alertType  String
-  sentAt     DateTime @default(now())
+  id           String   @id @default(uuid())
+  studentId    String?
+  courseId     String?
+  alertType    String?
+  
+  // Custom Email tracking fields
+  recipient    String?
+  subject      String?
+  status       String   @default("SUCCESS") // SUCCESS, FAILED
+  errorMessage String?
+  
+  sentAt       DateTime @default(now())
+}
+
+model ChatMessage {
+  id          String   @id @default(uuid())
+  senderId    String
+  receiverId  String?  
+  courseId    String?  
+  messageText String
+  chatType    String   // PRIVATE, GROUP, BROADCAST
+  timestamp   DateTime @default(now())
+  isRead      Boolean  @default(false)
+
+  sender      User     @relation("SentMessages", fields: [senderId], references: [id])
+  receiver    User?    @relation("ReceivedMessages", fields: [receiverId], references: [id])
+  course      Course?  @relation(fields: [courseId], references: [id])
+
+  @@index([senderId])
+  @@index([receiverId])
+  @@index([courseId])
 }
 
 // ----------------------------------------------------------------------

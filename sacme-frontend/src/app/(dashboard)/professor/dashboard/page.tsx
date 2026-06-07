@@ -4,13 +4,15 @@ import { getAuthToken, logoutUser } from '@/lib/auth';
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/Card";
 import { motion, AnimatePresence } from "framer-motion";
-import { BookOpen, Users, FileText, CheckSquare, Megaphone, Folder, ArrowLeft, Loader2, ArrowRight } from "lucide-react";
+import { BookOpen, Users, FileText, CheckSquare, Megaphone, Folder, ArrowLeft, Loader2, ArrowRight, MessageCircle } from "lucide-react";
 import AttendanceModule from "@/components/professor/AttendanceModule";
 import AssignmentModule from "@/components/professor/AssignmentModule";
 import MaterialModule from "@/components/professor/MaterialModule";
 import StudentRosterModule from "@/components/professor/StudentRosterModule";
 import QuizCreatorModule from "@/components/professor/QuizCreatorModule";
 import ProfessorAnnouncementModule from "@/components/professor/ProfessorAnnouncementModule";
+import ContactStudentModule from "@/components/professor/ContactStudentModule";
+import MailComposerModal from "@/components/professor/MailComposerModal";
 import ActivityTimeline from "@/components/shared/ActivityTimeline";
 
 export default function ProfessorDashboardPage() {
@@ -19,6 +21,13 @@ export default function ProfessorDashboardPage() {
     const [selectedCourse, setSelectedCourse] = useState<any | null>(null);
     const [activeTab, setActiveTab] = useState("overview");
     const [courseStats, setCourseStats] = useState<{ enrolledCount: number; avgAttendance: number } | null>(null);
+    const [composerRecipients, setComposerRecipients] = useState<any[]>([]);
+    const [composerOpen, setComposerOpen] = useState(false);
+
+    const handleOpenComposer = (students: any[]) => {
+        setComposerRecipients(students);
+        setComposerOpen(true);
+    };
 
     useEffect(() => {
         const storedCourse = sessionStorage.getItem('professor_selected_course');
@@ -89,7 +98,8 @@ export default function ProfessorDashboardPage() {
         { id: "materials", label: "Materials", icon: Folder },
         { id: "students", label: "Students", icon: Users },
         { id: "quizzes", label: "Quizzes Exam Engine", icon: FileText },
-        { id: "announcements", label: "Announcements", icon: Megaphone }
+        { id: "announcements", label: "Announcements", icon: Megaphone },
+        { id: "contact", label: "Contact Student", icon: FileText }
     ];
 
     if (loading) {
@@ -273,7 +283,29 @@ export default function ProfessorDashboardPage() {
                                     </CardContent>
                                 </Card>
                             )}
+                            {activeTab === 'contact' && (
+                                <Card className="glass-panel animate-in fade-in slide-in-from-bottom-4 border-blue-100 dark:border-blue-900/50">
+                                    <div className="p-4 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 flex justify-between items-center rounded-t-xl">
+                                        <div>
+                                            <h3 className="font-semibold text-slate-900 dark:text-white">Contact Students</h3>
+                                            <p className="text-sm text-slate-500">View roster attendance, pending work, and send direct emails.</p>
+                                        </div>
+                                    </div>
+                                    <CardContent className="p-0">
+                                        <ContactStudentModule courseId={selectedCourse.id} onOpenComposer={handleOpenComposer} />
+                                    </CardContent>
+                                </Card>
+                            )}
                         </div>
+
+                        {/* Mail Composer Modal Holder */}
+                        {composerOpen && (
+                           <MailComposerModal 
+                               recipients={composerRecipients} 
+                               courseId={selectedCourse.id} 
+                               onClose={() => setComposerOpen(false)} 
+                           />
+                        )}
 
                     </motion.div>
                 )}

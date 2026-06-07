@@ -107,7 +107,41 @@ export default function FacultyAdvisorDashboard() {
     const [previewErrors, setPreviewErrors] = useState<string[]>([]);
     const [studentSearch, setStudentSearch] = useState("");
     const [studentLoading, setStudentLoading] = useState(false);
+    const [studentForm, setStudentForm] = useState({ name: "", rollNo: "", email: "", phone: "" });
+    const [manualStudentLoading, setManualStudentLoading] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
+
+    const handleManualStudentSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setManualStudentLoading(true);
+        const token = getAuthToken();
+        const payload = [{
+            ...studentForm,
+            rollNo: studentForm.rollNo.toUpperCase().trim()
+        }];
+        try {
+            const res = await fetch(`http://localhost:5000/api/faculty-advisor/import-students/${selectedSemesterId}`, {
+                method: 'POST',
+                headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+                body: JSON.stringify({ students: payload })
+            });
+            const data = await res.json();
+            if (res.ok) {
+                if (data.failedRecords && data.failedRecords.length > 0) {
+                   alert("Failed to add student: " + data.failedRecords[0].reason);
+                } else {
+                   setStudentForm({ name: "", rollNo: "", email: "", phone: "" });
+                   alert("Student added successfully!");
+                   fetchActiveSemesterData();
+                }
+            } else {
+                alert(data.error);
+            }
+        } catch (err) {
+            alert("Upload failed.");
+        }
+        setManualStudentLoading(false);
+    };
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files.length > 0) {
@@ -572,6 +606,20 @@ export default function FacultyAdvisorDashboard() {
             {activeTab === 'students' && (
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     <div className="lg:col-span-1 space-y-6">
+                        <Card className="border-slate-200 dark:border-[#333] shadow-lg rounded-[2rem] mb-6 bg-white dark:bg-[#111]">
+                            <CardHeader><CardTitle>Manual Entry</CardTitle></CardHeader>
+                            <CardContent>
+                                <form onSubmit={handleManualStudentSubmit} className="space-y-4">
+                                    <div className="space-y-1"><Label>Full Name</Label><Input disabled={isLocked} required value={studentForm.name} onChange={e=>setStudentForm({...studentForm, name: e.target.value})} className="rounded-xl" placeholder="John Doe"/></div>
+                                    <div className="space-y-1"><Label>Roll No</Label><Input disabled={isLocked} required value={studentForm.rollNo} onChange={e=>setStudentForm({...studentForm, rollNo: e.target.value})} className="rounded-xl uppercase font-mono" placeholder="2301A105"/></div>
+                                    <div className="space-y-1"><Label>Email</Label><Input disabled={isLocked} required type="email" value={studentForm.email} onChange={e=>setStudentForm({...studentForm, email: e.target.value})} className="rounded-xl" placeholder="john@college.edu"/></div>
+                                    <div className="space-y-1"><Label>Phone (Opt)</Label><Input disabled={isLocked} value={studentForm.phone} onChange={e=>setStudentForm({...studentForm, phone: e.target.value})} className="rounded-xl"/></div>
+                                    <Button disabled={manualStudentLoading || isLocked} type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold mt-2">
+                                        {manualStudentLoading ? <Loader2 className="animate-spin w-4 h-4"/> : "Add Student"}
+                                    </Button>
+                                </form>
+                            </CardContent>
+                        </Card>
                         <Card className="border-slate-200 dark:border-[#333] shadow-lg rounded-[2rem] bg-white dark:bg-[#111]">
                             <CardHeader><CardTitle>Import Students</CardTitle></CardHeader>
                             <CardContent>
